@@ -25,7 +25,7 @@ int tryOpenDir(DIR **dir, char * dirpath);
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
-void printLs(struct dirent *dirEntry);
+void printLs(char *filename);
 void printLsl(char *filename, struct stat *pfileStat);
 
 char *filePermStr(mode_t perm, int flags);
@@ -40,6 +40,7 @@ char *filePermStr(mode_t perm, int flags);
 
 int main( int argc, char *argv[] )
 {
+
     /*************************
      * GET DIRECTORY SECTION *
      *************************/
@@ -74,49 +75,89 @@ int main( int argc, char *argv[] )
 
     struct dirent *dirEntry;
     char filePath[MAX_BUFFER];
+    char filename[MAX_DIR_LENGTH];
     struct stat fileStat;
     struct stat *pfileStat = &fileStat;
     
     /*vars to hold the important files*/
     int largest, smallest, newest, oldest;
-    char largestString[], smallestString[], newestString[], oldestString[];
-    char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;
-
+    char largestString[MAX_DIR_LENGTH], smallestString[MAX_DIR_LENGTH], newestString[MAX_DIR_LENGTH], oldestString[MAX_DIR_LENGTH];
+    char largestFileName[MAX_DIR_LENGTH], smallestFileName[MAX_DIR_LENGTH], newestFileName[MAX_DIR_LENGTH], oldestFileName[MAX_DIR_LENGTH];
+    //char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;
+    int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
 
     /*loop here til error or null entry*/
     while (tryReadDir(&dir, &dirEntry) == 0){
 
         getFullPath(dirEntry,directoryName,filePath);
+        strncpy(filename, dirEntry->d_name, MAX_DIR_LENGTH);
 
         if(tryStat(pfileStat, filePath) != 0){
             exit(1);
         }
         else {
-            
-            if(largest == NULL || pfileStat->st_size > largest){
-                largest = pfileStat->st_size;
-                plargestString = filePath;
+            /*check if directory before adding to list*/
+            if(S_ISDIR(pfileStat->st_mode) == 0){
+                if(largestSet != 1 || pfileStat->st_size > largest){
+                    largest = pfileStat->st_size;
+                    strncpy(largestString, filePath, MAX_DIR_LENGTH);
+                    strncpy(largestFileName, filename, MAX_DIR_LENGTH);
+                    largestSet = 1;
+                }
+                if(smallestSet != 1 || pfileStat->st_size < smallest){
+                    smallest = pfileStat->st_size;
+                    strncpy(smallestString, filePath, MAX_DIR_LENGTH);
+                    strncpy(smallestFileName, filename, MAX_DIR_LENGTH);
+                    smallestSet = 1;
+                }
+                if(oldestSet != 1 || pfileStat->st_mtime > oldest){
+                    oldest = pfileStat->st_mtime;
+                    strncpy(oldestString, filePath, MAX_DIR_LENGTH);
+                    strncpy(oldestFileName, filename, MAX_DIR_LENGTH);
+                    oldestSet = 1;
+                }
+                if(newestSet != 1 || pfileStat->st_mtime < newest){
+                    newest = pfileStat->st_mtime;
+                    strncpy(newestString, filePath, MAX_DIR_LENGTH);
+                    strncpy(newestFileName, filename, MAX_DIR_LENGTH);
+                    newestSet = 1;
+                }
             }
-            if(smallest == NULL || pfileStat->st_size < smallest){
-                smallest = pfileStat->st_size;
-                psmallestString = filePath;
-            }
-            if(oldest == NULL || pfileStat->st_mtime > oldest){
-                oldest = pfileStat->st_mtime;
-                poldestString = filePath;
-            }
-            if(newest == NULL || pfileStat->st_mtime < newest){
-                newest = pfileStat->st_mtime;
-                pnewestString = filePath;
-            }
-
-            
-            //printLsl(dirEntry, pfileStat);
         }
     }
 
-    stat(pfileStat, largestString);
-    printLsl(dirEntry, pfileStat);
+
+    /*check if directory empty*/
+    if(largestString[0] == '\0' || smallestString[0] == '\0' || newestString[0] == '\0' || oldestString[0] == '\0'){
+        printf("Empty Directory.\n");
+    }
+    else{
+
+        if(tryStat(pfileStat, largestString) == -1){
+            exit(1);
+        }
+        printf("\nLargest:\n");
+        printLsl(largestFileName, pfileStat);
+        
+        if(tryStat(pfileStat, smallestString) == -1){
+            exit(1);
+        }
+        printf("\nSmallest:\n");
+        printLsl(smallestFileName, pfileStat);
+    
+        if(tryStat(pfileStat, newestString) == -1){
+            exit(1);
+        }
+        printf("\nNewest:\n");
+        printLsl(newestFileName, pfileStat);
+        
+        if(tryStat(pfileStat, oldestString) == -1){
+            exit(1);
+        }
+        printf("\nOldest:\n");
+        printLsl(oldestFileName, pfileStat);
+    }
+
 
 
     return 0;
