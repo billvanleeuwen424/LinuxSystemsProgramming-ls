@@ -110,13 +110,13 @@ int main( int argc, char *argv[] )
                     strncpy(smallestFileName, filename, MAX_DIR_LENGTH);
                     smallestSet = 1;
                 }
-                if(oldestSet != 1 || pfileStat->st_mtime > oldest){
+                if(oldestSet != 1 || pfileStat->st_mtime < oldest){
                     oldest = pfileStat->st_mtime;
                     strncpy(oldestString, filePath, MAX_DIR_LENGTH);
                     strncpy(oldestFileName, filename, MAX_DIR_LENGTH);
                     oldestSet = 1;
                 }
-                if(newestSet != 1 || pfileStat->st_mtime < newest){
+                if(newestSet != 1 || pfileStat->st_mtime > newest){
                     newest = pfileStat->st_mtime;
                     strncpy(newestString, filePath, MAX_DIR_LENGTH);
                     strncpy(newestFileName, filename, MAX_DIR_LENGTH);
@@ -159,8 +159,8 @@ int main( int argc, char *argv[] )
     }
 
 
-
-    return 0;
+    /*should return 0 on close dir*/
+    return closedir(dir);
 }
 
 
