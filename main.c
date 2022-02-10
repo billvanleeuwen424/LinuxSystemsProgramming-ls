@@ -14,7 +14,6 @@ Required: See include statements below.
 
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,15 +34,15 @@ int tryOpenDir(DIR **dir, char * dirpath);
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
-void printLs(char *filename);
-void printLsl(char *filename, struct stat *pfileStat);
+void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
 char *filePermissionString(mode_t permissions);
+
+
 
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
 #define MIN_PARAMS 1
 #define MAX_BUFFER 4096
-
 
 
 
@@ -95,7 +94,7 @@ int main( int argc, char *argv[] )
     //char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;
     int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
 
-    /*loop here til error or null entry*/
+    /*loop til error or null entry*/
     while (tryReadDir(&dir, &dirEntry) == 0){
 
         getFullPath(dirEntry,directoryName,filePath);
@@ -107,6 +106,9 @@ int main( int argc, char *argv[] )
         else {
             /*check if directory before adding to list*/
             if(S_ISDIR(pfileStat->st_mode) == 0){
+
+                /*find the largest, smallest, newest, oldest*/
+
                 if(largestSet != 1 || pfileStat->st_size > largest){
                     largest = pfileStat->st_size;
                     strncpy(largestString, filePath, MAX_DIR_LENGTH);
@@ -136,35 +138,38 @@ int main( int argc, char *argv[] )
     }
 
 
-    /*check if directory empty*/
+    /*check if any of the objective strings are empty, which would infer an empty directory. or maybe a broken program*/
     if(largestString[0] == '\0' || smallestString[0] == '\0' || newestString[0] == '\0' || oldestString[0] == '\0'){
         printf("Empty Directory.\n");
     }
     else{
 
+
+        char lsOutput[MAX_DIR_LENGTH];
+
         if(tryStat(pfileStat, largestString) == -1){
             exit(1);
         }
         printf("\nLargest:\n");
-        printLsl(largestFileName, pfileStat);
+        printLsl(largestFileName, pfileStat, 1, lsOutput);
         
         if(tryStat(pfileStat, smallestString) == -1){
             exit(1);
         }
         printf("\nSmallest:\n");
-        printLsl(smallestFileName, pfileStat);
+        printLsl(smallestFileName, pfileStat, 1, lsOutput);
     
         if(tryStat(pfileStat, newestString) == -1){
             exit(1);
         }
         printf("\nNewest:\n");
-        printLsl(newestFileName, pfileStat);
+        printLsl(newestFileName, pfileStat, 1, lsOutput);
         
         if(tryStat(pfileStat, oldestString) == -1){
             exit(1);
         }
         printf("\nOldest:\n");
-        printLsl(oldestFileName, pfileStat);
+        printLsl(oldestFileName, pfileStat, 1, lsOutput);
     }
 
 
@@ -332,8 +337,9 @@ int tryStat(struct stat *fileStats, char *fullPath){
     return returnVal;
 }
 
-/*this function will print the stats of a file in an ls -l format*/
-void printLsl(char *filename, struct stat *pfileStat){
+/*this function will print the stats of a file in an ls -l format
+printFlag: will printf the string if ! 0*/
+void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString){
 
     /* convert the gid/uid to group/passwd structs inorder to print string */
     struct group *grp;
@@ -352,20 +358,13 @@ void printLsl(char *filename, struct stat *pfileStat){
     strftime(timeString, sizeof(timeString), "%b %d %Y [%H:%M] ", &ts);
     
 
-    /*print in ls -l format. filePermStr to format the permissions*/
-    printf("%-4s %-6s %-6s %5lu %-18s %-7s\n", filePermStr(pfileStat->st_mode,1), pwd->pw_name, grp->gr_name, pfileStat->st_size, timeString, filename);
+    /*print in ls -l format. filePermissionString to format the permissions*/
+    snprintf(printString, 500, "%-4s %-6s %-6s %5lu %-18s %-7s\n", filePermissionString(pfileStat->st_mode), pwd->pw_name, grp->gr_name, pfileStat->st_size, timeString, filename);
 
-    /*
-    incase we need to go back from the borrowed function
-    printf("%-4o %-6s %-6s %5lu %-18s %-7s\n", pfileStat->st_mode, pwd->pw_name, grp->gr_name, pfileStat->st_size, timeString, dirEntry->d_name);
-    */
-}
-
-/*this function will print the stats of a file in a regulat ls format*/
-void printLs(char *filename){
-
-    printf(" %-7s", filename);
-
+    if (printFlag != 0){
+        printf("%s\n", printString);
+    }
+    
 }
 
 /*this function will take the mode_t from the stat type and return a formatted string of permissions
@@ -383,7 +382,7 @@ char *filePermissionString(mode_t permissions){
     
     static char permissionsString[9];
 
-    snprintf(permissionsString, 9, "%c%c%c%c%c%c%c%c%c",
+    snprintf(permissionsString, 10, "%c%c%c%c%c%c%c%c%c",
 
     (permissions & S_IRUSR) ? 'r' : '-',
     (permissions & S_IRUSR) ? 'w' : '-', 
