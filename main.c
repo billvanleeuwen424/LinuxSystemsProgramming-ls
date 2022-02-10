@@ -1,20 +1,30 @@
-#include <stdio.h>
+/*
+Name: Lab2
+Authour: William Van Leeuwen - 0697505
+Purpose: finding the largest, smallest, youngest and oldest file in a directory
 
+How to use: ./main [Target Directory]
+    or: ./main
+    the 2nd option will run the program in the cwd
+
+Params: standard params taken from the cmd line
+
+Required: See include statements below. 
+    The functions required are already embedded in this file
+
+*/
+
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//for opendir and readdir
-#include <dirent.h>
-//file stats
-#include <sys/stat.h>
-//for getcwd
-#include <unistd.h>
-//for errno
-#include <errno.h>
-//for time
-#include <time.h>
-//for conversion of gid and uid to strings
-#include <pwd.h>
-#include <grp.h>
+#include <dirent.h>     //for opendir and readdir
+#include <sys/stat.h>   //file stats
+#include <unistd.h>     //for getcwd
+#include <errno.h>      //for errno
+#include <time.h>       //for time
+#include <pwd.h>        //for conversion of uid to strings
+#include <grp.h>        //for conversion of gid to strings
 
 
 int checkMaxParams(int argc, char *argv[]);
@@ -27,15 +37,14 @@ void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
 void printLs(char *filename);
 void printLsl(char *filename, struct stat *pfileStat);
-
-char *filePermStr(mode_t perm, int flags);
+char *filePermissionString(mode_t permissions);
 
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
 #define MIN_PARAMS 1
-
-
 #define MAX_BUFFER 4096
+
+
 
 
 int main( int argc, char *argv[] )
@@ -360,36 +369,35 @@ void printLs(char *filename){
 }
 
 /*this function will take the mode_t from the stat type and return a formatted string of permissions
-this function was unashamedly taken from:
-    The Linux Programming Interface
+references: 
+
+The Linux Programming Interface
     Chapter 15
     pg 296
 
-full disclosure. I'm not sure what the flags input does
+and 
+
+https://www.gnu.org/software/libc/manual/html_node/Permission-Bits.html
 */
-#define FILE_PERMS_H
-#include <sys/types.h>
-#define FP_SPECIAL 1
+char *filePermissionString(mode_t permissions){
+    
+    static char permissionsString[9];
+
+    snprintf(permissionsString, 9, "%c%c%c%c%c%c%c%c%c",
+
+    (permissions & S_IRUSR) ? 'r' : '-',
+    (permissions & S_IRUSR) ? 'w' : '-', 
+    (permissions & S_IRUSR) ? 'x' : '-',
+
+    (permissions & S_ISGID) ? 'r' : '-',
+    (permissions & S_ISGID) ? 'w' : '-', 
+    (permissions & S_ISGID) ? 'x' : '-',
+
+    (permissions & S_IROTH) ? 'r' : '-',
+    (permissions & S_IWOTH) ? 'w' : '-', 
+    (permissions & S_IXOTH) ? 'x' : '-'
+    );
 
 
-#define STR_SIZE sizeof("rwxrwxrwx")
-
-char *filePermStr(mode_t perm, int flags){
-    static char str[STR_SIZE];
-
-    snprintf(str, STR_SIZE, "%c%c%c%c%c%c%c%c%c",
-        (perm & S_IRUSR) ? 'r' : '-', (perm & S_IWUSR) ? 'w' : '-',
-        (perm & S_IXUSR) ?
-            (((perm & S_ISUID) && (flags & FP_SPECIAL)) ? 's' : 'x') :
-            (((perm & S_ISUID) && (flags & FP_SPECIAL)) ? 'S' : '-'),
-        (perm & S_IRGRP) ? 'r' : '-', (perm & S_IWGRP) ? 'w' : '-',
-        (perm & S_IXGRP) ?
-            (((perm & S_ISGID) && (flags & FP_SPECIAL)) ? 's' : 'x') :
-            (((perm & S_ISGID) && (flags & FP_SPECIAL)) ? 'S' : '-'),
-        (perm & S_IROTH) ? 'r' : '-', (perm & S_IWOTH) ? 'w' : '-',
-        (perm & S_IXOTH) ?
-            (((perm & S_ISVTX) && (flags & FP_SPECIAL)) ? 't' : 'x') :
-            (((perm & S_ISVTX) && (flags & FP_SPECIAL)) ? 'T' : '-'));
-
-    return str;
+    return permissionsString;
 }
