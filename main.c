@@ -121,13 +121,13 @@ int main( int argc, char *argv[] )
                     strncpy(smallestFileName, filename, MAX_DIR_LENGTH);
                     smallestSet = 1;
                 }
-                if(oldestSet != 1 || pfileStat->st_mtime > oldest){
+                if(oldestSet != 1 || pfileStat->st_mtime < oldest){
                     oldest = pfileStat->st_mtime;
                     strncpy(oldestString, filePath, MAX_DIR_LENGTH);
                     strncpy(oldestFileName, filename, MAX_DIR_LENGTH);
                     oldestSet = 1;
                 }
-                if(newestSet != 1 || pfileStat->st_mtime < newest){
+                if(newestSet != 1 || pfileStat->st_mtime > newest){
                     newest = pfileStat->st_mtime;
                     strncpy(newestString, filePath, MAX_DIR_LENGTH);
                     strncpy(newestFileName, filename, MAX_DIR_LENGTH);
@@ -385,12 +385,12 @@ char *filePermissionString(mode_t permissions){
     snprintf(permissionsString, 10, "%c%c%c%c%c%c%c%c%c",
 
     (permissions & S_IRUSR) ? 'r' : '-',
-    (permissions & S_IRUSR) ? 'w' : '-', 
-    (permissions & S_IRUSR) ? 'x' : '-',
+    (permissions & S_IWUSR) ? 'w' : '-', 
+    (permissions & S_IXUSR) ? 'x' : '-',
 
-    (permissions & S_ISGID) ? 'r' : '-',
-    (permissions & S_ISGID) ? 'w' : '-', 
-    (permissions & S_ISGID) ? 'x' : '-',
+    (permissions & S_IRGRP) ? 'r' : '-',
+    (permissions & S_IWGRP) ? 'w' : '-', 
+    (permissions & S_IXGRP) ? 'x' : '-',
 
     (permissions & S_IROTH) ? 'r' : '-',
     (permissions & S_IWOTH) ? 'w' : '-', 
