@@ -42,7 +42,7 @@ int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
-char *filePermissionString(mode_t permissions);
+char *filePermissionString(struct stat *fileStats);
 
 
 
@@ -366,7 +366,7 @@ void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *print
     
 
     /*print in ls -l format. filePermissionString to format the permissions*/
-    snprintf(printString, 500, "%-4s %-6s %-6s %5lu %-18s %-7s\n", filePermissionString(pfileStat->st_mode), pwd->pw_name, grp->gr_name, pfileStat->st_size, timeString, filename);
+    snprintf(printString, 500, "%-4s %-6s %-6s %5lu %-18s %-7s\n", filePermissionString(pfileStat), pwd->pw_name, grp->gr_name, pfileStat->st_size, timeString, filename);
 
     if (printFlag != 0){
         printf("%s\n", printString);
@@ -385,23 +385,23 @@ and
 
 https://www.gnu.org/software/libc/manual/html_node/Permission-Bits.html
 */
-char *filePermissionString(mode_t permissions){
-    
+char *filePermissionString(struct stat *fileStats){
+
     static char permissionsString[9];
 
     snprintf(permissionsString, 10, "%c%c%c%c%c%c%c%c%c",
 
-    (permissions & S_IRUSR) ? 'r' : '-',
-    (permissions & S_IWUSR) ? 'w' : '-', 
-    (permissions & S_IXUSR) ? 'x' : '-',
+    (fileStats->st_mode & S_IRUSR) ? 'r' : '-',
+    (fileStats->st_mode & S_IWUSR) ? 'w' : '-', 
+    (fileStats->st_mode & S_IXUSR) ? 'x' : '-',
 
-    (permissions & S_IRGRP) ? 'r' : '-',
-    (permissions & S_IWGRP) ? 'w' : '-', 
-    (permissions & S_IXGRP) ? 'x' : '-',
+    (fileStats->st_mode & S_IRGRP) ? 'r' : '-',
+    (fileStats->st_mode & S_IWGRP) ? 'w' : '-', 
+    (fileStats->st_mode & S_IXGRP) ? 'x' : '-',
 
-    (permissions & S_IROTH) ? 'r' : '-',
-    (permissions & S_IWOTH) ? 'w' : '-', 
-    (permissions & S_IXOTH) ? 'x' : '-'
+    (fileStats->st_mode & S_IROTH) ? 'r' : '-',
+    (fileStats->st_mode & S_IWOTH) ? 'w' : '-', 
+    (fileStats->st_mode & S_IXOTH) ? 'x' : '-'
     );
 
 
