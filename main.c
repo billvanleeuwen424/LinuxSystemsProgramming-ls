@@ -17,13 +17,20 @@ Required: See include statements below.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>     //for opendir and readdir
-#include <sys/stat.h>   //file stats
-#include <unistd.h>     //for getcwd
-#include <errno.h>      //for errno
-#include <time.h>       //for time
-#include <pwd.h>        //for conversion of uid to strings
-#include <grp.h>        //for conversion of gid to strings
+/*for opendir and readdir*/
+#include <dirent.h>     
+/*file stats*/
+#include <sys/stat.h>   
+/*for getcwd*/
+#include <unistd.h>     
+/*for errno*/
+#include <errno.h>      
+/*for time*/
+#include <time.h>       
+/*for conversion of uid to strings*/
+#include <pwd.h>        
+/*for conversion of gid to strings*/
+#include <grp.h>        
 
 
 int checkMaxParams(int argc, char *argv[]);
@@ -91,7 +98,7 @@ int main( int argc, char *argv[] )
     int largest, smallest, newest, oldest;
     char largestString[MAX_DIR_LENGTH], smallestString[MAX_DIR_LENGTH], newestString[MAX_DIR_LENGTH], oldestString[MAX_DIR_LENGTH];
     char largestFileName[MAX_DIR_LENGTH], smallestFileName[MAX_DIR_LENGTH], newestFileName[MAX_DIR_LENGTH], oldestFileName[MAX_DIR_LENGTH];
-    //char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;
+    /*char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;*/
     int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
 
     /*loop til error or null entry*/
