@@ -194,6 +194,7 @@ int main( int argc, char *argv[] )
 /*  
 Use: pass this function a string, the position of the directory in argv, and of course argv
 Purpose: this will check if the string is longer than the MAX_DIR_LENGTH
+
 Authour: William Van Leeuwen
 Date: Feb 2022
  */
