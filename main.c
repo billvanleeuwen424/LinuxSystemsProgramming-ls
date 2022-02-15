@@ -3,11 +3,14 @@ Name: Lab2
 Authour: William Van Leeuwen - 0697505
 Purpose: finding the largest, smallest, youngest and oldest file in a directory
 
-How to use: ./main [Target Directory]
-    or: ./main
+How to use:
+    ./main [Target Directory]
+    or: 
+    ./main
+
     the 2nd option will run the program in the cwd
 
-Params: standard params taken from the cmd line
+Params: standard params taken from the cmd line. 
 
 Required: See include statements below. 
     The functions required are already embedded in this file
@@ -184,8 +187,15 @@ int main( int argc, char *argv[] )
 }
 
 
-/*  pass this function a string, the position of the directory in argv, and of course argv
- *  this will check if the string is longer than the MAX_DIR_LENGTH
+
+
+
+
+/*  
+Use: pass this function a string, the position of the directory in argv, and of course argv
+Purpose: this will check if the string is longer than the MAX_DIR_LENGTH
+Authour: William Van Leeuwen
+Date: Feb 2022
  */
 void cpyDirectory(char * directory, int position, char *argv[]){
 
@@ -200,16 +210,22 @@ void cpyDirectory(char * directory, int position, char *argv[]){
 }
 
 
-/* Pass this function the input from the cmd line
- * Checks if more params than max
- * will exit if too many, returns 0 on successful
- *
- * return values:
- *      0: just right amount of params
- *      1: too many params
- *      -1: too few params
- * Reference: I took this from the /home/COIS/3380/sample_scripts directory.
- * I also refactored this to make it my own
+/* 
+
+Use/Purpose: Pass this function the input from the cmd line, 
+    Checks if more params than max, 
+    will exit if too many, returns 0 on successful
+
+return values:
+      0: just right amount of params
+      1: too many params
+      -1: too few params
+
+Authour: William Van Leeuwen
+Date: Feb 2022
+
+Reference: I took this from the /home/COIS/3380/sample_scripts directory.
+I also refactored this to make it my own
  */
 int checkMaxParams(int argc, char *argv[]){
 
@@ -226,21 +242,15 @@ int checkMaxParams(int argc, char *argv[]){
         returnval = -1;
     }
 
-    /*DEBUGGING
-    while( parameter_count < argc )
-    {
-        printf("\tparameter[%d]: %s\n",parameter_count,argv[parameter_count]);
-        parameter_count++;
-    }
-    printf("\n");
-    */
-
     return returnval;
 }
 
 /*
 This function will return the last modification time in epoch time.
 it requires a pointer to a stat type, and the filepath of the deisred file.
+
+Authour: William Van Leeuwen
+Date: Feb 2022
 */
 int getLastFileModification(struct stat *pfileStats, char *fullPath){
 
@@ -252,6 +262,9 @@ int getLastFileModification(struct stat *pfileStats, char *fullPath){
 /*
 This function will return the size of the file (bytes).
 it requires a pointer to a stat type, and the filepath of the deisred file.
+
+Authour: William Van Leeuwen
+Date: Feb 2022
 */
 int getFileSize(struct stat *pfileStats, char *fullPath){
 
@@ -263,6 +276,9 @@ int getFileSize(struct stat *pfileStats, char *fullPath){
 /*
 This function just opens the directory specificed in the string passed.
 it will check if the directory stream is NULL and return -1 if that is the case.
+
+Authour: William Van Leeuwen
+Date: Feb 2022
 */
 int tryOpenDir(DIR **dir, char * dirpath){
     
@@ -287,6 +303,9 @@ int tryOpenDir(DIR **dir, char * dirpath){
 /*
 This function will read the next entry in the directory.
 it will check if the directory entry is NULL and return -1 if error, or return 1 if just end of directory
+
+Authour: William Van Leeuwen
+Date: Feb 2022
 */
 int tryReadDir(DIR **dir, struct dirent **dirEntry){
 
@@ -313,8 +332,13 @@ int tryReadDir(DIR **dir, struct dirent **dirEntry){
 
 
 /*
-This function will return a filename with its path as a single string.
-It requires the files directory entry, and the path of the file.
+Use: pass the dirent, path, and a string which the fullPath will be stored
+
+Purpose: return the full path of a file.
+e.g. /home/user/Documents/test.txt
+
+Authour: William Van Leeuwen
+Date: Feb 2022
 */
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath){
 
@@ -326,7 +350,14 @@ void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath){
 
 }
 
-/*this function will try stat, upon any errors will return -1*/
+/*
+Use: pass the stat struct, and the full filepath
+
+Purpose:  this function will try stat, upon any errors will return -1
+
+Authour: William Van Leeuwen
+Date: Feb 2022
+*/
 int tryStat(struct stat *fileStats, char *fullPath){
 
     int returnVal = 0;
@@ -343,8 +374,17 @@ int tryStat(struct stat *fileStats, char *fullPath){
     return returnVal;
 }
 
-/*this function will print the stats of a file in an ls -l format
-printFlag: will printf the string if ! 0*/
+/*
+Use: Pass this function the filename,
+    the file stats struct,
+    a print flag (will printf the string if ! 0),
+    and the string which the ls -l output will be stored in
+
+Purpose: Produce ls -l style output
+
+Authour: William Van Leeuwen
+Date: Feb 2022
+*/
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString){
 
     /* convert the gid/uid to group/passwd structs inorder to print string */
@@ -374,6 +414,11 @@ void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *print
 }
 
 /*this function will take the mode_t from the stat type and return a formatted string of permissions
+
+
+Authour: William Van Leeuwen
+Date: Feb 2022
+
 references: 
 
 The Linux Programming Interface
