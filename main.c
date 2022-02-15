@@ -138,41 +138,48 @@ int main( int argc, char *argv[] )
         strncpy(filename, dirEntry->d_name, MAX_DIR_LENGTH);
 
 
-        if(tryStat(pfileStat, filePath) != 0){
+
+        /*Get the file stats, and error check*/
+        /*clear errno*/
+        errno = 0;
+        stat(fullPath, fileStats);
+        if(errno != 0){
+            fprintf (stderr, "%s: Couldn't open stats on file %s;\n",fullPath, strerror(errno));
             exit(1);
         }
-        else {
-            /*check if directory before adding to list*/
-            if(S_ISDIR(pfileStat->st_mode) == 0){
 
-                /*find the largest, smallest, newest, oldest*/
 
-                if(largestSet != 1 || pfileStat->st_size > largest){
-                    largest = pfileStat->st_size;
-                    strncpy(largestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                    largestSet = 1;
-                }
-                if(smallestSet != 1 || pfileStat->st_size < smallest){
-                    smallest = pfileStat->st_size;
-                    strncpy(smallestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                    smallestSet = 1;
-                }
-                if(oldestSet != 1 || pfileStat->st_mtime < oldest){
-                    oldest = pfileStat->st_mtime;
-                    strncpy(oldestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                    oldestSet = 1;
-                }
-                if(newestSet != 1 || pfileStat->st_mtime > newest){
-                    newest = pfileStat->st_mtime;
-                    strncpy(newestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                    newestSet = 1;
-                }
+
+        /*check if directory before adding to list*/
+        if(S_ISDIR(pfileStat->st_mode) == 0){
+
+            /*find the largest, smallest, newest, oldest*/
+            if(largestSet != 1 || pfileStat->st_size > largest){
+                largest = pfileStat->st_size;
+                strncpy(largestString, filePath, MAX_DIR_LENGTH);
+                strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                largestSet = 1;
+            }
+            if(smallestSet != 1 || pfileStat->st_size < smallest){
+                smallest = pfileStat->st_size;
+                strncpy(smallestString, filePath, MAX_DIR_LENGTH);
+                strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                smallestSet = 1;
+            }
+            if(oldestSet != 1 || pfileStat->st_mtime < oldest){
+                oldest = pfileStat->st_mtime;
+                strncpy(oldestString, filePath, MAX_DIR_LENGTH);
+                strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                oldestSet = 1;
+            }
+            if(newestSet != 1 || pfileStat->st_mtime > newest){
+                newest = pfileStat->st_mtime;
+                strncpy(newestString, filePath, MAX_DIR_LENGTH);
+                strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                newestSet = 1;
             }
         }
+        
     }
 
 
