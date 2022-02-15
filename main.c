@@ -37,7 +37,6 @@ Required: See include statements below.
 
 
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
-int tryStat(struct stat *fileStats, char *fullPath);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
 char *filePermissionString(struct stat *fileStats);
 
@@ -117,13 +116,18 @@ int main( int argc, char *argv[] )
     char filename[MAX_DIR_LENGTH];
     struct stat fileStat;
     struct stat *pfileStat = &fileStat;
-    
+
     /*vars to hold the important files*/
     int largest, smallest, newest, oldest;
-    char largestString[MAX_DIR_LENGTH], smallestString[MAX_DIR_LENGTH], newestString[MAX_DIR_LENGTH], oldestString[MAX_DIR_LENGTH];
     char largestFileName[MAX_DIR_LENGTH], smallestFileName[MAX_DIR_LENGTH], newestFileName[MAX_DIR_LENGTH], oldestFileName[MAX_DIR_LENGTH];
     /*char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;*/
+    
+    
     int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
+
+
+    struct stat largestStat, smallestStat, newestStat, oldestStat;
+    struct stat *plargestStat = &largestStat, *psmallestStat = &smallestStat, *pnewestStat = &newestStat, *poldestStat = &oldestStat;
 
 
     /*loop til error or null entry*/
@@ -142,9 +146,9 @@ int main( int argc, char *argv[] )
         /*Get the file stats, and error check*/
         /*clear errno*/
         errno = 0;
-        stat(fullPath, fileStats);
+        stat(filePath, pfileStat);
         if(errno != 0){
-            fprintf (stderr, "%s: Couldn't open stats on file %s;\n",fullPath, strerror(errno));
+            fprintf (stderr, "%s: Couldn't open stats on file %s;\n",filePath, strerror(errno));
             exit(1);
         }
 
@@ -155,28 +159,28 @@ int main( int argc, char *argv[] )
 
             /*find the largest, smallest, newest, oldest*/
             if(largestSet != 1 || pfileStat->st_size > largest){
-                largest = pfileStat->st_size;
-                strncpy(largestString, filePath, MAX_DIR_LENGTH);
-                strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+
                 largestSet = 1;
+                strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                largestStat = fileStat;
             }
             if(smallestSet != 1 || pfileStat->st_size < smallest){
-                smallest = pfileStat->st_size;
-                strncpy(smallestString, filePath, MAX_DIR_LENGTH);
-                strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+
                 smallestSet = 1;
+                strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                smallestStat = fileStat;
             }
             if(oldestSet != 1 || pfileStat->st_mtime < oldest){
-                oldest = pfileStat->st_mtime;
-                strncpy(oldestString, filePath, MAX_DIR_LENGTH);
-                strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+
                 oldestSet = 1;
+                strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                oldestStat = fileStat;
             }
             if(newestSet != 1 || pfileStat->st_mtime > newest){
-                newest = pfileStat->st_mtime;
-                strncpy(newestString, filePath, MAX_DIR_LENGTH);
-                strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+
                 newestSet = 1;
+                strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
+                newestStat = fileStat;
             }
         }
         
@@ -190,32 +194,22 @@ int main( int argc, char *argv[] )
     }
     else{
 
-
         char lsOutput[MAX_DIR_LENGTH];
 
-        if(tryStat(pfileStat, largestString) == -1){
-            exit(1);
-        }
         printf("\nLargest:\n");
-        printLsl(largestFileName, pfileStat, 1, lsOutput);
+        printLsl(largestFileName, plargestStat, 1, lsOutput);
         
-        if(tryStat(pfileStat, smallestString) == -1){
-            exit(1);
-        }
+
         printf("\nSmallest:\n");
-        printLsl(smallestFileName, pfileStat, 1, lsOutput);
+        printLsl(smallestFileName, psmallestStat, 1, lsOutput);
     
-        if(tryStat(pfileStat, newestString) == -1){
-            exit(1);
-        }
+
         printf("\nNewest:\n");
-        printLsl(newestFileName, pfileStat, 1, lsOutput);
-        
-        if(tryStat(pfileStat, oldestString) == -1){
-            exit(1);
-        }
+        printLsl(newestFileName, pnewestStat, 1, lsOutput);
+
+
         printf("\nOldest:\n");
-        printLsl(oldestFileName, pfileStat, 1, lsOutput);
+        printLsl(oldestFileName, poldestStat, 1, lsOutput);
     }
 
 
@@ -254,29 +248,6 @@ int tryReadDir(DIR **dir, struct dirent **dirEntry){
     return returnVal;
 }
 
-/*
-Use: pass the stat struct, and the full filepath
-
-Purpose:  this function will try stat, upon any errors will return -1
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-*/
-int tryStat(struct stat *fileStats, char *fullPath){
-
-    int returnVal = 0;
-
-    errno = 0;
-
-    stat(fullPath, fileStats);
-
-    if(errno != 0){
-        fprintf (stderr, "%s: Couldn't open stats on file %s; %s\n", "tryStat",fullPath, strerror(errno));
-        returnVal = -1;
-    }
-
-    return returnVal;
-}
 
 /*
 Use: Pass this function the filename,
