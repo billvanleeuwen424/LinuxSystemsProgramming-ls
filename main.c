@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
 
 
 
-        /*check if directory before adding to list*/
+        /*check if it is a directory before adding to list*/
         if(S_ISDIR(pfileStat->st_mode) == 0){
 
             /*find the largest, smallest, newest, oldest*/
