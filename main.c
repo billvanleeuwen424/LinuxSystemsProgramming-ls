@@ -49,7 +49,6 @@ char *filePermissionString(struct stat *fileStats);
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
 #define MIN_PARAMS 1
-#define MAX_BUFFER 4096
 
 
 
@@ -70,7 +69,7 @@ int main( int argc, char *argv[] )
     }
     /*empty cmdline. getcwd*/
     else if(maxParamReturnVal == -1){   
-        getcwd(directoryName, MAX_BUFFER);
+        getcwd(directoryName, MAX_DIR_LENGTH);
     }
     /*copy the dirname from argv*/
     else{
@@ -89,7 +88,7 @@ int main( int argc, char *argv[] )
     }
 
     struct dirent *dirEntry;
-    char filePath[MAX_BUFFER];
+    char filePath[MAX_DIR_LENGTH];
     char filename[MAX_DIR_LENGTH];
     struct stat fileStat;
     struct stat *pfileStat = &fileStat;
@@ -319,11 +318,11 @@ It requires the files directory entry, and the path of the file.
 */
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath){
 
-    strncpy(fullPath, dirpath, MAX_BUFFER );
+    strncpy(fullPath, dirpath, MAX_DIR_LENGTH );
 
     strncat(fullPath,"//",1);
 
-    strncat(fullPath,pdirectoryEntry->d_name,MAX_BUFFER);
+    strncat(fullPath,pdirectoryEntry->d_name,MAX_DIR_LENGTH);
 
 }
 
