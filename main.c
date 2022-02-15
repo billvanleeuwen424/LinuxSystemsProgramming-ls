@@ -38,7 +38,6 @@ Required: See include statements below.
 
 int getLastFileModification(struct stat *pfileStats, char *fullPath);
 int getFileSize(struct stat *pfileStats, char *fullPath);
-int tryOpenDir(DIR **dir, char * dirpath);
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
@@ -63,14 +62,24 @@ int main( int argc, char *argv[] )
     char directoryName[MAX_DIR_LENGTH];
 
 
-    /*check parameter count*/
+    /***********************
+     *check parameter count*
+     ***********************/
     if( argc > MAX_PARAMS ){
         printf("Too many parameters. Exit. \n");
         exit(1);
     }
+
+    /*get current directory*/
     else if (argc <= MIN_PARAMS){
         getcwd(directoryName, MAX_DIR_LENGTH); 
+
+        if(directoryName == NULL){
+            printf("Get Current Directory Failed. Exiting \n");
+            exit(1);
+        }
     }
+
     /*get dir from cmd line*/
     else{
 
@@ -80,7 +89,7 @@ int main( int argc, char *argv[] )
         }
 
         else{
-            strncpy(directory, argv[1], MAX_DIR_LENGTH );
+            strncpy(directoryName, argv[1], MAX_DIR_LENGTH );
         }  
 
     } 
@@ -90,11 +99,21 @@ int main( int argc, char *argv[] )
      * GET FILE STATS SECTION *
      **************************/
 
-    DIR *dir;
-    /*try to open the dir*/
-    if(tryOpenDir(&dir, directoryName) == -1){
+    /*clear errno*/
+    errno = 0; 
+    
+    DIR *dir = opendir(directoryName);
+
+    /*error check dir*/
+    if(dir == NULL){
+
+        /*reference. GNU C Library - Section 2.3 */
+        fprintf (stderr, "%s: Couldn't open directory %s;\n", directoryName, strerror(errno));
+
         exit(1);
     }
+
+
 
     struct dirent *dirEntry;
     char filePath[MAX_DIR_LENGTH];
@@ -151,6 +170,7 @@ int main( int argc, char *argv[] )
             }
         }
     }
+
 
 
     /*check if any of the objective strings are empty, which would infer an empty directory. or maybe a broken program*/
@@ -220,33 +240,6 @@ int getFileSize(struct stat *pfileStats, char *fullPath){
     stat(fullPath, pfileStats);
 
     return pfileStats->st_size;
-}
-
-/*
-This function just opens the directory specificed in the string passed.
-it will check if the directory stream is NULL and return -1 if that is the case.
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-*/
-int tryOpenDir(DIR **dir, char * dirpath){
-    
-    /*clear errno*/
-    errno = 0; 
-
-    int returnVal = 0;
-    
-    *dir = opendir(dirpath);
-
-    if(*dir == NULL){
-
-        /*reference. GNU C Library - Section 2.3 */
-        fprintf (stderr, "%s: Couldn't open directory %s; %s\n", "tryOpenDir", dirpath, strerror(errno));
-
-        returnVal = -1;
-    }
-
-    return returnVal;
 }
 
 /*
