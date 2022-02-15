@@ -41,7 +41,6 @@ void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *print
 char *filePermissionString(struct stat *fileStats);
 
 
-
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
 #define MIN_PARAMS 1
@@ -110,22 +109,17 @@ int main( int argc, char *argv[] )
     }
 
 
-
+    /*vars for the file loop*/
     struct dirent *dirEntry;
     char filePath[MAX_DIR_LENGTH];
     char filename[MAX_DIR_LENGTH];
     struct stat fileStat;
     struct stat *pfileStat = &fileStat;
 
+
     /*vars to hold the important files*/
-    int largest, smallest, newest, oldest;
     char largestFileName[MAX_DIR_LENGTH], smallestFileName[MAX_DIR_LENGTH], newestFileName[MAX_DIR_LENGTH], oldestFileName[MAX_DIR_LENGTH];
-    /*char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;*/
-    
-    
     int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
-
-
     struct stat largestStat, smallestStat, newestStat, oldestStat;
     struct stat *plargestStat = &largestStat, *psmallestStat = &smallestStat, *pnewestStat = &newestStat, *poldestStat = &oldestStat;
 
@@ -140,8 +134,6 @@ int main( int argc, char *argv[] )
 
         /*get just the filename*/
         strncpy(filename, dirEntry->d_name, MAX_DIR_LENGTH);
-
-
 
         /*Get the file stats, and error check*/
         /*clear errno*/
