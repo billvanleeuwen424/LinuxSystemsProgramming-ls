@@ -36,7 +36,6 @@ Required: See include statements below.
 #include <grp.h>        
 
 
-void cpyDirectory(char * director, int position, char *argv[]);
 int getLastFileModification(struct stat *pfileStats, char *fullPath);
 int getFileSize(struct stat *pfileStats, char *fullPath);
 int tryOpenDir(DIR **dir, char * dirpath);
@@ -72,8 +71,18 @@ int main( int argc, char *argv[] )
     else if (argc <= MIN_PARAMS){
         getcwd(directoryName, MAX_DIR_LENGTH); 
     }
+    /*get dir from cmd line*/
     else{
-        cpyDirectory(directoryName, 1, argv);
+
+        if(strlen(argv[1]) > MAX_DIR_LENGTH ){
+            printf("Directory length longer than %d. Quitting.\n", MAX_DIR_LENGTH);
+            exit(1);
+        }
+
+        else{
+            strncpy(directory, argv[1], MAX_DIR_LENGTH );
+        }  
+
     } 
     
 
@@ -181,30 +190,6 @@ int main( int argc, char *argv[] )
 
     /*should return 0 on close dir*/
     return closedir(dir);
-}
-
-
-
-
-
-
-/*  
-Use: pass this function a string, the position of the directory in argv, and of course argv
-Purpose: this will check if the string is longer than the MAX_DIR_LENGTH
-
-Authour: William Van Leeuwen
-Date: Feb 2022
- */
-void cpyDirectory(char * directory, int position, char *argv[]){
-
-    if(strlen(argv[position]) > MAX_DIR_LENGTH ){
-        printf("Directory length longer than %d. Quitting.\n", MAX_DIR_LENGTH);
-        exit(1);
-    }
-
-    else{
-        strncpy(directory, argv[position], MAX_DIR_LENGTH );
-    }
 }
 
 
