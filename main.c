@@ -36,10 +36,7 @@ Required: See include statements below.
 #include <grp.h>        
 
 
-int getLastFileModification(struct stat *pfileStats, char *fullPath);
-int getFileSize(struct stat *pfileStats, char *fullPath);
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
-void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath);
 int tryStat(struct stat *fileStats, char *fullPath);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
 char *filePermissionString(struct stat *fileStats);
@@ -128,11 +125,18 @@ int main( int argc, char *argv[] )
     /*char *plargestString = &largestString, *psmallestString = &smallestString, *pnewestString = &newestString, *poldestString = &oldestString;*/
     int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
 
+
     /*loop til error or null entry*/
     while (tryReadDir(&dir, &dirEntry) == 0){
+ 
+        /*get full filepath*/
+        strncpy(filePath, directoryName, MAX_DIR_LENGTH );
+        strncat(filePath,"//",1);
+        strncat(filePath, dirEntry->d_name,MAX_DIR_LENGTH);
 
-        getFullPath(dirEntry,directoryName,filePath);
+        /*get just the filename*/
         strncpy(filename, dirEntry->d_name, MAX_DIR_LENGTH);
+
 
         if(tryStat(pfileStat, filePath) != 0){
             exit(1);
@@ -146,25 +150,25 @@ int main( int argc, char *argv[] )
                 if(largestSet != 1 || pfileStat->st_size > largest){
                     largest = pfileStat->st_size;
                     strncpy(largestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(largestFileName, filename, MAX_DIR_LENGTH);
+                    strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                     largestSet = 1;
                 }
                 if(smallestSet != 1 || pfileStat->st_size < smallest){
                     smallest = pfileStat->st_size;
                     strncpy(smallestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(smallestFileName, filename, MAX_DIR_LENGTH);
+                    strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                     smallestSet = 1;
                 }
                 if(oldestSet != 1 || pfileStat->st_mtime < oldest){
                     oldest = pfileStat->st_mtime;
                     strncpy(oldestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(oldestFileName, filename, MAX_DIR_LENGTH);
+                    strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                     oldestSet = 1;
                 }
                 if(newestSet != 1 || pfileStat->st_mtime > newest){
                     newest = pfileStat->st_mtime;
                     strncpy(newestString, filePath, MAX_DIR_LENGTH);
-                    strncpy(newestFileName, filename, MAX_DIR_LENGTH);
+                    strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                     newestSet = 1;
                 }
             }
@@ -213,35 +217,6 @@ int main( int argc, char *argv[] )
 }
 
 
-
-/*
-This function will return the last modification time in epoch time.
-it requires a pointer to a stat type, and the filepath of the deisred file.
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-*/
-int getLastFileModification(struct stat *pfileStats, char *fullPath){
-
-    stat(fullPath, pfileStats);
-
-    return pfileStats->st_atime;
-}
-
-/*
-This function will return the size of the file (bytes).
-it requires a pointer to a stat type, and the filepath of the deisred file.
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-*/
-int getFileSize(struct stat *pfileStats, char *fullPath){
-
-    stat(fullPath, pfileStats);
-
-    return pfileStats->st_size;
-}
-
 /*
 This function will read the next entry in the directory.
 it will check if the directory entry is NULL and return -1 if error, or return 1 if just end of directory
@@ -270,26 +245,6 @@ int tryReadDir(DIR **dir, struct dirent **dirEntry){
     }                       /* else should still just be zero */
     
     return returnVal;
-}
-
-
-/*
-Use: pass the dirent, path, and a string which the fullPath will be stored
-
-Purpose: return the full path of a file.
-e.g. /home/user/Documents/test.txt
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-*/
-void getFullPath(struct dirent *pdirectoryEntry, char *dirpath, char *fullPath){
-
-    strncpy(fullPath, dirpath, MAX_DIR_LENGTH );
-
-    strncat(fullPath,"//",1);
-
-    strncat(fullPath,pdirectoryEntry->d_name,MAX_DIR_LENGTH);
-
 }
 
 /*
