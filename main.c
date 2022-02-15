@@ -36,7 +36,6 @@ Required: See include statements below.
 #include <grp.h>        
 
 
-int checkMaxParams(int argc, char *argv[]);
 void cpyDirectory(char * director, int position, char *argv[]);
 int getLastFileModification(struct stat *pfileStats, char *fullPath);
 int getFileSize(struct stat *pfileStats, char *fullPath);
@@ -64,20 +63,18 @@ int main( int argc, char *argv[] )
 
     char directoryName[MAX_DIR_LENGTH];
 
-    int maxParamReturnVal = checkMaxParams(argc, argv);
-    
-    /*error check and get either cwd or cmdline arg */
-    if(maxParamReturnVal == 1){ /*too many params*/
+
+    /*check parameter count*/
+    if( argc > MAX_PARAMS ){
+        printf("Too many parameters. Exit. \n");
         exit(1);
     }
-    /*empty cmdline. getcwd*/
-    else if(maxParamReturnVal == -1){   
-        getcwd(directoryName, MAX_DIR_LENGTH);
+    else if (argc <= MIN_PARAMS){
+        getcwd(directoryName, MAX_DIR_LENGTH); 
     }
-    /*copy the dirname from argv*/
     else{
-        cpyDirectory(directoryName, 1, argv);   
-    }  
+        cpyDirectory(directoryName, 1, argv);
+    } 
     
 
     /**************************
@@ -211,40 +208,6 @@ void cpyDirectory(char * directory, int position, char *argv[]){
 }
 
 
-/* 
-
-Use/Purpose: Pass this function the input from the cmd line, 
-    Checks if more params than max, 
-    will exit if too many, returns 0 on successful
-
-return values:
-      0: just right amount of params
-      1: too many params
-      -1: too few params
-
-Authour: William Van Leeuwen
-Date: Feb 2022
-
-Reference: I took this from the /home/COIS/3380/sample_scripts directory.
-I also refactored this to make it my own
- */
-int checkMaxParams(int argc, char *argv[]){
-
-    int parameter_count = 0;
-
-    int returnval = 0;
-
-    if( argc > MAX_PARAMS ){
-        printf("Too many parameters. Exit. \n");
-        returnval = 1;
-    }
-    else if (argc <= MIN_PARAMS)
-    {
-        returnval = -1;
-    }
-
-    return returnval;
-}
 
 /*
 This function will return the last modification time in epoch time.
