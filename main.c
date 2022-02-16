@@ -68,12 +68,7 @@ int main( int argc, char *argv[] )
 
     /*get current directory*/
     else if (argc <= MIN_PARAMS){
-        getcwd(directoryName, MAX_DIR_LENGTH); 
-
-        if(directoryName == NULL){
-            printf("Get Current Directory Failed. Exiting \n");
-            exit(1);
-        }
+        strcpy(directoryName, "./");
     }
 
     /*get dir from cmd line*/
