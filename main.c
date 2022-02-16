@@ -119,9 +119,10 @@ int main( int argc, char *argv[] )
     struct stat largestStat, smallestStat, newestStat, oldestStat;
     struct stat *plargestStat = &largestStat, *psmallestStat = &smallestStat, *pnewestStat = &newestStat, *poldestStat = &oldestStat;
 
+    int readDirFlag = 0;
 
     /*loop til error or null entry*/
-    while (tryReadDir(&dir, &dirEntry) == 0){
+    while ((readDirFlag = tryReadDir(&dir, &dirEntry)) == 0){
  
         /*get full filepath*/
         strncpy(filePath, directoryName, MAX_DIR_LENGTH );
@@ -174,6 +175,10 @@ int main( int argc, char *argv[] )
         
     }
 
+    if(readDirFlag != 0){
+        printf("Error reading directory. Exiting.");
+        exit(1);
+    }
 
 
     /*check if any of the objective strings are empty, which would infer an empty directory. or maybe a broken program*/
