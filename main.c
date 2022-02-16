@@ -50,6 +50,7 @@ char *filePermissionString(struct stat *fileStats);
 int main( int argc, char *argv[] )
 {
 
+
     /*************************
      * GET DIRECTORY SECTION *
      *************************/
@@ -150,25 +151,25 @@ int main( int argc, char *argv[] )
         if(S_ISDIR(pfileStat->st_mode) == 0){
 
             /*find the largest, smallest, newest, oldest*/
-            if(largestSet != 1 || pfileStat->st_size > largest){
+            if(largestSet != 1 || pfileStat->st_size > plargestStat->st_size){
 
                 largestSet = 1;
                 strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                 largestStat = fileStat;
             }
-            if(smallestSet != 1 || pfileStat->st_size < smallest){
+            if(smallestSet != 1 || pfileStat->st_size < psmallestStat->st_size){
 
                 smallestSet = 1;
                 strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                 smallestStat = fileStat;
             }
-            if(oldestSet != 1 || pfileStat->st_mtime < oldest){
+            if(oldestSet != 1 || pfileStat->st_mtime < poldestStat->st_mtime){
 
                 oldestSet = 1;
                 strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
                 oldestStat = fileStat;
             }
-            if(newestSet != 1 || pfileStat->st_mtime > newest){
+            if(newestSet != 1 || pfileStat->st_mtime > pnewestStat->st_mtime){
 
                 newestSet = 1;
                 strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
@@ -181,7 +182,7 @@ int main( int argc, char *argv[] )
 
 
     /*check if any of the objective strings are empty, which would infer an empty directory. or maybe a broken program*/
-    if(largestString[0] == '\0' || smallestString[0] == '\0' || newestString[0] == '\0' || oldestString[0] == '\0'){
+    if(largestFileName[0] == '\0' || smallestFileName[0] == '\0' || newestFileName[0] == '\0' || oldestFileName[0] == '\0'){
         printf("Empty Directory.\n");
     }
     else{
