@@ -175,8 +175,8 @@ int main( int argc, char *argv[] )
         
     }
 
-    if(readDirFlag != 0){
-        printf("Error reading directory. Exiting.");
+    if(readDirFlag == -1){
+        printf("Error reading directory. Exiting.\n");
         exit(1);
     }
 
