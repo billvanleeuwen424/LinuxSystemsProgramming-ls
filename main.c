@@ -113,12 +113,6 @@ int main( int argc, char *argv[] )
     struct stat *pfileStat = &fileStat;
 
 
-    /*vars to hold the important files*/
-    char largestFileName[MAX_DIR_LENGTH], smallestFileName[MAX_DIR_LENGTH], newestFileName[MAX_DIR_LENGTH], oldestFileName[MAX_DIR_LENGTH];
-    int largestSet = 0, smallestSet = 0, newestSet = 0, oldestSet = 0;
-    struct stat largestStat, smallestStat, newestStat, oldestStat;
-    struct stat *plargestStat = &largestStat, *psmallestStat = &smallestStat, *pnewestStat = &newestStat, *poldestStat = &oldestStat;
-
     int readDirFlag = 0;
 
     /*loop til error or null entry*/
@@ -126,7 +120,7 @@ int main( int argc, char *argv[] )
  
         /*get full filepath*/
         strncpy(filePath, directoryName, MAX_DIR_LENGTH );
-        strncat(filePath,"//",1);
+        strncat(filePath,"/",1);
         strncat(filePath, dirEntry->d_name,MAX_DIR_LENGTH);
 
         /*get just the filename*/
@@ -139,76 +133,37 @@ int main( int argc, char *argv[] )
         if(errno != 0){
             fprintf (stderr, "%s: Couldn't open stats on file %s;\n",filePath, strerror(errno));
             exit(1);
-        }
+        }    
 
+        printLsl(filename, pfileStat, 0, lsOutput);
+        strcpy(files[filesCounter],lsOutput);
+        filesCounter++;
 
-
-        /*check if it is a directory before adding to list*/
-        if(S_ISDIR(pfileStat->st_mode) == 0){
-
-            /*find the largest, smallest, newest, oldest*/
-            if(largestSet != 1 || pfileStat->st_size > plargestStat->st_size){
-
-                largestSet = 1;
-                strncpy(largestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                largestStat = fileStat;
-            }
-            if(smallestSet != 1 || pfileStat->st_size < psmallestStat->st_size){
-
-                smallestSet = 1;
-                strncpy(smallestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                smallestStat = fileStat;
-            }
-            if(oldestSet != 1 || pfileStat->st_mtime < poldestStat->st_mtime){
-
-                oldestSet = 1;
-                strncpy(oldestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                oldestStat = fileStat;
-            }
-            if(newestSet != 1 || pfileStat->st_mtime > pnewestStat->st_mtime){
-
-                newestSet = 1;
-                strncpy(newestFileName, dirEntry->d_name, MAX_DIR_LENGTH);
-                newestStat = fileStat;
-            }
-        }
-        
     }
-
     if(readDirFlag == -1){
         printf("Error reading directory. Exiting.\n");
         exit(1);
     }
 
-
-    /*check if any of the objective strings are empty, which would infer an empty directory. or maybe a broken program*/
-    if(largestFileName[0] == '\0' || smallestFileName[0] == '\0' || newestFileName[0] == '\0' || oldestFileName[0] == '\0'){
-        printf("Empty Directory.\n");
-    }
-    else{
-
-        char lsOutput[MAX_DIR_LENGTH];
-
-        printf("\nLargest:\n");
-        printLsl(largestFileName, plargestStat, 1, lsOutput);
-        
-
-        printf("\nSmallest:\n");
-        printLsl(smallestFileName, psmallestStat, 1, lsOutput);
+    /*print dirname and num files*/
+    printf("\n%s/\n", directoryName);
+    printf("total: %d\n", filesCounter);
     
 
-        printf("\nNewest:\n");
-        printLsl(newestFileName, pnewestStat, 1, lsOutput);
-
-
-        printf("\nOldest:\n");
-        printLsl(oldestFileName, poldestStat, 1, lsOutput);
+    /*print files*/
+    int i;
+    for(i = 0; i < filesCounter; i++){
+        printf("%s", files[i]);
     }
+    printf("\n");
 
 
     /*should return 0 on close dir*/
     return closedir(dir);
 }
+
+
+
 
 
 /*
