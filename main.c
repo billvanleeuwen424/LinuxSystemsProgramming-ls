@@ -44,7 +44,7 @@ char *filePermissionString(struct stat *fileStats);
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
 #define MIN_PARAMS 1
-
+#define MAX_FILES 100
 
 
 int main( int argc, char *argv[] )
@@ -105,6 +105,11 @@ int main( int argc, char *argv[] )
     }
 
 
+    char files[MAX_FILES][MAX_DIR_LENGTH];
+    int filesCounter =0;
+    char lsOutput[MAX_DIR_LENGTH];
+
+
     /*vars for the file loop*/
     struct dirent *dirEntry;
     char filePath[MAX_DIR_LENGTH];
@@ -120,7 +125,7 @@ int main( int argc, char *argv[] )
  
         /*get full filepath*/
         strncpy(filePath, directoryName, MAX_DIR_LENGTH );
-        strncat(filePath,"/",1);
+        strncat(filePath,"/",2);
         strncat(filePath, dirEntry->d_name,MAX_DIR_LENGTH);
 
         /*get just the filename*/
