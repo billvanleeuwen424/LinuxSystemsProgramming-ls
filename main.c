@@ -17,6 +17,12 @@ Required: See include statements below.
 
 */
 
+
+/*TODO
+- Bust out main into a function
+- Recurse
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,6 +46,7 @@ Required: See include statements below.
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
 char *filePermissionString(struct stat *fileStats);
+void getTargetDir(int argc, char *argv[], char *directoryName);
 
 
 #define MAX_DIR_LENGTH 256
@@ -51,39 +58,9 @@ char *filePermissionString(struct stat *fileStats);
 int main( int argc, char *argv[] )
 {
 
-    /*************************
-     * GET DIRECTORY SECTION *
-     *************************/
-
     char directoryName[MAX_DIR_LENGTH];
-
-
-    /***********************
-     *check parameter count*
-     ***********************/
-    if( argc > MAX_PARAMS ){
-        printf("Too many parameters. Exit. \n");
-        exit(1);
-    }
-
-    /*get current directory*/
-    else if (argc <= MIN_PARAMS){
-        strcpy(directoryName, "./");
-    }
-
-    /*get dir from cmd line*/
-    else{
-
-        if(strlen(argv[1]) > MAX_DIR_LENGTH ){
-            printf("Directory length longer than %d. Quitting.\n", MAX_DIR_LENGTH);
-            exit(1);
-        }
-
-        else{
-            strncpy(directoryName, argv[1], MAX_DIR_LENGTH );
-        }  
-
-    } 
+    
+    getTargetDir(argc, argv, directoryName);
     
 
     /**************************
@@ -168,7 +145,40 @@ int main( int argc, char *argv[] )
 }
 
 
+/*
+This function will set the target directory into directoryName
+will exit if too many params, will set as cwd if no params
 
+Authour: William Van Leeuwen
+Date: Feb 2022
+*/
+void getTargetDir(int argc, char *argv[], char *directoryName){
+
+    /*check parameter count*/
+    if( argc > MAX_PARAMS ){
+        printf("Too many parameters. Exit. \n");
+        exit(1);
+    }
+
+    /*get current directory*/
+    else if (argc <= MIN_PARAMS){
+        strcpy(directoryName, "./");
+    }
+
+    /*get dir from cmd line*/
+    else{
+
+        if(strlen(argv[1]) > MAX_DIR_LENGTH ){
+            printf("Directory length longer than %d. Quitting.\n", MAX_DIR_LENGTH);
+            exit(1);
+        }
+
+        else{
+            strncpy(directoryName, argv[1], MAX_DIR_LENGTH );
+        }  
+
+    } 
+}
 
 
 /*
