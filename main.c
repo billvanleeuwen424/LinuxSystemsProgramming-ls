@@ -162,7 +162,7 @@ void getTargetDir(int argc, char *argv[], char *directoryName){
 
     /*get current directory*/
     else if (argc <= MIN_PARAMS){
-        strcpy(directoryName, "./");
+        getcwd(directoryName,MAX_DIR_LENGTH);
     }
 
     /*get dir from cmd line*/
