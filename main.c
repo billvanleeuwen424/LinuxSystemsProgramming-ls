@@ -34,7 +34,8 @@ Required: See include statements below.
 #include <pwd.h>        
 /*for conversion of gid to strings*/
 #include <grp.h>        
-
+/*linked list*/
+#include "src/list.h"
 
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
@@ -49,7 +50,6 @@ char *filePermissionString(struct stat *fileStats);
 
 int main( int argc, char *argv[] )
 {
-
 
     /*************************
      * GET DIRECTORY SECTION *
@@ -104,7 +104,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
 
-
+    /*for printing*/
     char files[MAX_FILES][MAX_DIR_LENGTH];
     int filesCounter =0;
     char lsOutput[MAX_DIR_LENGTH];
