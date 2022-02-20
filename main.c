@@ -19,7 +19,7 @@ Required: See include statements below.
 
 
 /*TODO
-- Bust out main into a function
+- solve the // bug
 - Recurse
 */
 
@@ -47,7 +47,7 @@ int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
 char *filePermissionString(struct stat *fileStats);
 void getTargetDir(int argc, char *argv[], char *directoryName);
-
+int printDirectory(char *directory);
 
 #define MAX_DIR_LENGTH 256
 #define MAX_PARAMS 2
@@ -62,21 +62,25 @@ int main( int argc, char *argv[] )
     
     getTargetDir(argc, argv, directoryName);
     
+    printDirectory(directoryName);
+    
+}
 
-    /**************************
-     * GET FILE STATS SECTION *
-     **************************/
+
+/*takes a directory name, and prints its entire contents*/
+int printDirectory(char *directory){
+
 
     /*clear errno*/
     errno = 0; 
     
-    DIR *dir = opendir(directoryName);
+    DIR *dir = opendir(directory);
 
     /*error check dir*/
     if(dir == NULL){
 
         /*reference. GNU C Library - Section 2.3 */
-        fprintf (stderr, "%s: Couldn't open directory %s;\n", directoryName, strerror(errno));
+        fprintf (stderr, "%s: Couldn't open directory %s;\n", directory, strerror(errno));
 
         exit(1);
     }
@@ -101,8 +105,14 @@ int main( int argc, char *argv[] )
     while ((readDirFlag = tryReadDir(&dir, &dirEntry)) == 0){
  
         /*get full filepath*/
-        strncpy(filePath, directoryName, MAX_DIR_LENGTH );
-        strncat(filePath,"/",2);
+        strncpy(filePath, directory, MAX_DIR_LENGTH );
+
+        if(filePath[strlen(filePath)-1] != '/'){
+            strncat(filePath,"/",2);
+        }
+
+        
+
         strncat(filePath, dirEntry->d_name,MAX_DIR_LENGTH);
 
         /*get just the filename*/
@@ -128,7 +138,7 @@ int main( int argc, char *argv[] )
     }
 
     /*print dirname and num files*/
-    printf("\n%s/\n", directoryName);
+    printf("\n%s\n", directory);
     printf("total: %d\n", filesCounter);
     
 
