@@ -40,8 +40,6 @@ Required: See include statements below.
 #include <pwd.h>        
 /*for conversion of gid to strings*/
 #include <grp.h>        
-/*linked list*/
-#include "src/list.h"
 
 int tryReadDir(DIR **dir, struct dirent **dirEntry);
 void printLsl(char *filename, struct stat *pfileStat, int printFlag, char *printString);
